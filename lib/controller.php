@@ -301,13 +301,16 @@ class WikiController {
 		$result = file_put_contents($model->file, $model->content);
 
 		// try to commit a version into the local git repo, if git is available
-		$date_and_time = date('Y-m-d H:i:s');
-		$user_ip       = trim($_SERVER['REMOTE_ADDR']);
-		$user_info     = trim($_SERVER['REMOTE_USER']);
-		$user_info     = $user_info !== '' ? "$user_info ($user_ip)" : $user_ip;
+		if ($this->has_git()) {
+			$date_and_time = date('Y-m-d H:i:s');
+			$user_ip       = trim($_SERVER['REMOTE_ADDR']);
+			$user_info     = trim($_SERVER['REMOTE_USER']);
+			$user_info     = $user_info !== '' ? "$user_info ($user_ip)" : $user_ip;
 
-		$this->git("add .");
-		$this->git("commit -m 'Change at {$date_and_time} by $user_info'");
+			$this->git('status || git init'); // ensure the repository is initialized
+			$this->git("add ."); // add all changes to the index and then commit
+			$this->git("commit -m 'Change at {$date_and_time} by $user_info'");
+		}
 
 		return $result;
 	}
