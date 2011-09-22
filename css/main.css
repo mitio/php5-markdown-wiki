@@ -31,6 +31,41 @@ pre {
 	border-radius: 3px;
 }
 
+.diff {
+	margin: 20px 0;
+	max-width: 950px;
+	overflow: auto;
+	font-family: 'Lucida Console', monospace;
+	white-space: pre;
+	padding: 10px;
+	border: 1px solid #ddd;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.diff .line {
+	line-height: 20px;
+	height: 20px;
+}
+
+.diff .line.addition,
+.diff.addition {
+	background-color: #cfc;
+	color: #050;
+}
+
+.diff .line.deletion,
+.diff.deletion {
+	background-color: #fcc;
+	color: #500;
+}
+
+.diff .line.meta {
+	background-color: #f9f9f9;
+	color: #bbb;
+}
+
 #nav {
 	float: right;
 	min-width: 160px;

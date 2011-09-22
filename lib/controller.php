@@ -80,6 +80,9 @@ class WikiController {
 			case 'edit':
 				$response = $this->doEdit($action);
 				break;
+			case 'changelog':
+				$response = $this->doChangelog($action);
+				break;
 			case 'delete':
 				@unlink($action->model->file);
 				$this->redirectTo($this->baseUrl . $action->page, array('success' => "Страницата '{$action->page}' е изтрита успешно."));
@@ -113,6 +116,7 @@ class WikiController {
 			'editForm' => '',
 			'options'  => array(
 				'Редактирай' => "{$action->base}{$action->page}?action=edit&id={$action->page}",
+				'История'    => "{$action->base}{$action->page}?action=changelog&id={$action->page}",
 				'Изтрий'     => "{$action->base}{$action->page}?action=delete&confirm=true&id={$action->page}",
 			),
 			'related'  => ''
@@ -145,6 +149,98 @@ class WikiController {
 		}
 
 		return null;
+	}
+
+	protected function doChangelog($action) {
+		$content = '';
+
+		$base_url = "{$action->base}{$action->page}";
+		$from     = trim(@$_REQUEST['from']);
+		$to       = trim(@$_REQUEST['to']);
+
+		if ($this->has_git()) {
+			if ($from && $to) {
+				// render a diff between two page versions
+				$escaped_from = escapeshellarg($from);
+				$escaped_to   = escapeshellarg($to);
+
+				$from_info = $this->git("log -1 $escaped_from");
+				$to_info   = $this->git("log -1 $escaped_to");
+
+				$content .= '<h3>Показване на разликите между версия <strong>' . $from . '</strong> и <strong>' . $to . '</strong></h3>';
+				$content .= '<pre class="diff deletion">Версия <strong>' . $from . '</strong>:<br />' . htmlspecialchars($from_info) . '</pre>';
+				$content .= '<pre class="diff addition">Версия <strong>' . $to . '</strong>:<br />' . htmlspecialchars($to_info) . '</pre>';
+
+				$content .= '<p>Разлики:</p>';
+				// get diff
+				$diff_lines = explode("\n", trim($this->git("diff $escaped_from $escaped_to")));
+				// strip diff header
+				$diff_lines = array_slice($diff_lines, 4);
+				$content .= '<div class="diff">';
+				foreach ($diff_lines as $line) {
+					if (preg_match('/^\+/', $line)) {
+						$line_type = 'addition';
+					} else if (preg_match('/^-/', $line)) {
+						$line_type = 'deletion';
+					} else if (preg_match('/^@@/', $line)) {
+						$line_type = 'meta';
+					} else {
+						$line_type = '';
+					}
+					$line = substr($line, 1);
+
+					$content .= '<div class="line ' . $line_type . '">';
+					$content .= htmlspecialchars($line);
+					$content .= '</div>';
+				}
+				$content .= '</div>';
+			}
+
+			// render a simple changelog for this page
+			$history  = $this->git('log --pretty=oneline --abbrev-commit');
+
+			$content .= '<h3>Версии на страница ' . htmlspecialchars($this->pageName($action->page)) . '</h3>';
+			$content .= '<form action="' . htmlspecialchars($base_url) . '" method="get" />';
+			$content .= '<input type="hidden" name="action" value="changelog" />';
+			$content .= '<input type="hidden" name="id" value="' . htmlspecialchars($action->page) . '" />';
+			$content .= '<pre>';
+			foreach (explode("\n", trim($history)) as $index => $line) {
+				list($commit) = explode('... ', $line);
+
+				// mark default versions to compare - the last two
+				if (empty($_REQUEST['to']) && $index == 0) {
+					$to = $commit;
+				}
+				if (empty($_REQUEST['from']) && $index == 1) {
+					$from = $commit;
+				}
+
+				$from_checked = $commit == $from ? 'checked="checked"' : '';
+				$to_checked   = $commit == $to   ? 'checked="checked"' : '';
+
+				$content .= '<input type="radio" name="from" value="' . $commit . '" ' . $from_checked . ' />';
+				$content .= '<input type="radio" name="to" value="' . $commit . '" ' . $to_checked . ' /> ';
+				$content .= htmlspecialchars($line) . '<br />';
+			}
+			$content .= '</pre>';
+			$content .= '<p><input type="submit" value="Сравнете версиите" /></p>';
+			$content .= '</form>';
+		} else {
+			$content .= 'За съжаление функцията "история на промените" не е достъпна за вашата инсталация';
+		}
+
+		$response = array(
+			'title'    => "История на промените за: " . $this->pageName($action->page),
+			'content'  => $content,
+			'editForm' => '',
+			'options'  => array(
+				'Редакция' => "{$action->base}{$action->page}?action=edit&id={$action->page}",
+				'Обратно' => "{$action->base}{$action->page}"
+			),
+			'related'  => ''
+		);
+
+		return $response;
 	}
 
 	protected function doPreview($action) {
