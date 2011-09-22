@@ -135,6 +135,18 @@ class WikiController {
 		return $response;
 	}
 
+	protected function has_git() {
+		return trim(`which git`) !== '';
+	}
+
+	protected function git($command) {
+		if ($this->has_git()) {
+			return `cd '{$this->config['docDir']}' && git $command 2>&1`;
+		}
+
+		return null;
+	}
+
 	protected function doPreview($action) {
 		$response = array(
 			'title'    => "Преглед: " . $this->pageName($action->page),
@@ -190,7 +202,18 @@ class WikiController {
 			return;
 		}
 
-		file_put_contents($model->file, $model->content);
+		$result = file_put_contents($model->file, $model->content);
+
+		// try to commit a version into the local git repo, if git is available
+		$date_and_time = date('Y-m-d H:i:s');
+		$user_ip       = trim($_SERVER['REMOTE_ADDR']);
+		$user_info     = trim($_SERVER['REMOTE_USER']);
+		$user_info     = $user_info !== '' ? "$user_info ($user_ip)" : $user_ip;
+
+		$this->git("add .");
+		$this->git("commit -m 'Change at {$date_and_time} by $user_info'");
+
+		return $result;
 	}
 
 	##
