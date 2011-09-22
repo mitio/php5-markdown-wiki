@@ -168,8 +168,8 @@ class WikiController {
 				$to_info   = $this->git("log -1 $escaped_to");
 
 				$content .= '<h3>Показване на разликите между версия <strong>' . $from . '</strong> и <strong>' . $to . '</strong></h3>';
-				$content .= '<pre class="diff deletion">Версия <strong>' . $from . '</strong>:<br />' . htmlspecialchars($from_info) . '</pre>';
-				$content .= '<pre class="diff addition">Версия <strong>' . $to . '</strong>:<br />' . htmlspecialchars($to_info) . '</pre>';
+				$content .= '<pre>Версия <strong>' . $from . '</strong>:<br />' . htmlspecialchars($from_info) . '</pre>';
+				$content .= '<pre>Версия <strong>' . $to . '</strong>:<br />' . htmlspecialchars($to_info) . '</pre>';
 
 				$content .= '<p>Разлики:</p>';
 				// get diff
