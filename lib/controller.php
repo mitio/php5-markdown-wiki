@@ -157,6 +157,7 @@ class WikiController {
 		$base_url = "{$action->base}{$action->page}";
 		$from     = trim(@$_REQUEST['from']);
 		$to       = trim(@$_REQUEST['to']);
+		$path     = escapeshellarg($this->getFilename($action->page));
 
 		if ($this->has_git()) {
 			if ($from && $to) {
@@ -173,7 +174,7 @@ class WikiController {
 
 				$content .= '<p>Разлики:</p>';
 				// get diff
-				$diff_lines = explode("\n", trim($this->git("diff $escaped_from $escaped_to")));
+				$diff_lines = explode("\n", trim($this->git("diff $escaped_from $escaped_to $path")));
 				// strip diff header
 				$diff_lines = array_slice($diff_lines, 4);
 				$content .= '<div class="diff">';
@@ -197,7 +198,7 @@ class WikiController {
 			}
 
 			// render a simple changelog for this page
-			$history  = $this->git('log --pretty=oneline --abbrev-commit');
+			$history  = $this->git("log --pretty=oneline --abbrev-commit -- $path");
 
 			$content .= '<h3>Версии на страница ' . htmlspecialchars($this->pageName($action->page)) . '</h3>';
 			$content .= '<form action="' . htmlspecialchars($base_url) . '" method="get" />';
