@@ -12,6 +12,7 @@ class WikiController {
 	// An instance of the Markdown parser
 	protected $parser;
 	protected $baseUrl;
+	protected $gitBinary;
 
 	public function __construct($config=false) {
 		$this->initWiki();
@@ -139,13 +140,35 @@ class WikiController {
 		return $response;
 	}
 
+	protected function git_binary() {
+		if ($this->gitBinary === null) {
+			$this->gitBinary = trim(`which git`);
+
+			if ($this->gitBinary === '') {
+				// Didn't find Git the ususal way; try other paths instead.
+				$paths = array('/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin');
+				foreach ($paths as $path) {
+					$this->gitBinary = "$path/git";
+					if (file_exists($this->gitBinary)) {
+						return $this->gitBinary;
+					}
+				}
+
+				$this->gitBinary = false;
+			}
+		}
+
+		return $this->gitBinary;
+	}
+
 	protected function has_git() {
-		return trim(`which git`) !== '';
+		return $this->git_binary() !== false;
 	}
 
 	protected function git($command) {
 		if ($this->has_git()) {
-			return `cd '{$this->config['docDir']}' && git $command 2>&1`;
+			$git = $this->git_binary();
+			return `cd '{$this->config['docDir']}' && $git $command 2>&1`;
 		}
 
 		return null;
@@ -308,7 +331,7 @@ class WikiController {
 			$user_info     = trim($_SERVER['REMOTE_USER']);
 			$user_info     = $user_info !== '' ? "$user_info ($user_ip)" : $user_ip;
 
-			$this->git('status || git init'); // ensure the repository is initialized
+			$this->git('status || ' . $this->git_binary() . ' init'); // ensure the repository is initialized
 			$this->git("add ."); // add all changes to the index and then commit
 			$this->git("commit -m 'Change at {$date_and_time} by $user_info'");
 		}
