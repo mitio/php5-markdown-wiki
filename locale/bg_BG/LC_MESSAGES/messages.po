@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: php5-markdown-wiki\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-06-15 00:32-0000\n"
+"PO-Revision-Date: 2012-06-15 00:34-0000\n"
+"Last-Translator: seth <xd.seth@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_gettext;_ngettext\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Language: Bulgarian\n"
+"X-Poedit-Country: BULGARIA\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:96
+msgid "Page \"%s\" deleted"
+msgstr "Страницата \"%s\" е изтрита успешно."
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:110
+msgid "Action %s not implemented."
+msgstr ""
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:126
+#: /opt/lampp/htdocs/wiki/lib/controller.php:268
+msgid "Edit"
+msgstr "Редактирай"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:127
+msgid "Changelog"
+msgstr "История"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:128
+msgid "Delete"
+msgstr "Изтрий"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:138
+msgid "edit: "
+msgstr "Редактиране: "
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:142
+#: /opt/lampp/htdocs/wiki/lib/controller.php:283
+msgid "Cancel"
+msgstr "Отказ"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:201
+msgid "Changes between <strong>%s</strong> and <strong> %s</strong>"
+msgstr "Показване на разликите между версия <strong>%s</strong> и <strong>%s</strong>"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:202
+#: /opt/lampp/htdocs/wiki/lib/controller.php:203
+msgid "Version <strong>%s</strong>:<br />%s"
+msgstr "Версия <strong>%s</strong>:<br />%s"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:205
+msgid "Changes:"
+msgstr "Разлики"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:233
+msgid "Versions of the page %s"
+msgstr "Версии на страница %s"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:257
+msgid "Compare versions"
+msgstr "Сравнете версиите"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:260
+msgid "Sorry, but the change history isn't available for your instalation."
+msgstr "За съжаление функцията \"история на промените\" не е достъпна за вашата инсталация"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:264
+msgid "History for: "
+msgstr "История на промените за: "
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:269
+msgid "Back"
+msgstr "Обратно"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:279
+msgid "Preview: "
+msgstr "Преглед: "
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:295
+msgid "Creating a new page"
+msgstr "Създаване на нова страница..."
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:301
+msgid "The update was successfull."
+msgstr "Страницата е обновена успешно."
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:303
+msgid "Warning: there was a conflict when trying to edit the page."
+msgstr "Внимание: Възникнал е конфликт при опита за редакция на страницата."
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:328
+msgid "Error: failed to create %s"
+msgstr "Грешка: неуспешен опит за създаване на %s"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:385
+msgid "This page doesn't exist yet. <br> Click \"Edit\" to create it."
+msgstr "Тази страница все още не съществува.<br>Натиснете \"Редактирай\", за да я създадете."
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:541
+msgid "Are you sure?"
+msgstr "Сигурни ли сте?"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:630
+msgid "Editing page"
+msgstr "Редакция на страница"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:631
+msgid "Contents: "
+msgstr "Съдържание:"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:635
+msgid "Preview"
+msgstr "Преглед"
+
+#: /opt/lampp/htdocs/wiki/lib/controller.php:636
+msgid "Save"
+msgstr "Запази"
+

@@ -1,14 +1,15 @@
 <?php
+require_once 'gettext/gettext.inc';
 
 class WikiController {
 	// Wiki default configuration. All overridableindex
 	protected $config = array(
 		'docDir'      => '/tmp/',
 		'defaultPage' => 'index',
-		'newPageText' => 'Тази страница все още не съществува.<br>Натиснете "Редактирай", за да я създадете.',
-		'markdownExt' => 'markdown'
+		'markdownExt' => 'markdown',
+		'language'    => 'bg_BG',
 	);
-
+	
 	// An instance of the Markdown parser
 	protected $parser;
 	protected $baseUrl;
@@ -19,6 +20,12 @@ class WikiController {
 		if ($config) {
 			$this->setConfig($config);
 		}
+		
+		// gettext setup
+		_setlocale(LC_MESSAGES, $this->config['language']);
+		_bindtextdomain('messages', 'locale');
+		_bind_textdomain_codeset('messages', 'UTF-8');
+		_textdomain('messages');
 	}
 
 	protected function initWiki() {
@@ -86,7 +93,7 @@ class WikiController {
 				break;
 			case 'delete':
 				@unlink($action->model->file);
-				$this->redirectTo($this->baseUrl . $action->page, array('success' => "Страницата '{$action->page}' е изтрита успешно."));
+				$this->redirectTo($this->baseUrl . $action->page, array('success' => sprintf(__('Page "%s" deleted'), $action->page)));
 				break;
 			case 'preview':
 				$response = $this->doPreview($action);
@@ -100,7 +107,7 @@ class WikiController {
 			default:
 				$response = array(
 					'messages' => array(
-						"Action {$action->action} not implemented."
+						sprintf(__('Action %s not implemented.'), $action->action)
 					)
 				);
 				print_r($action);
@@ -116,9 +123,9 @@ class WikiController {
 			'content'  => $this->renderDocument($action),
 			'editForm' => '',
 			'options'  => array(
-				'Редактирай' => "{$action->base}{$action->page}?action=edit&id={$action->page}",
-				'История'    => "{$action->base}{$action->page}?action=changelog&id={$action->page}",
-				'Изтрий'     => "{$action->base}{$action->page}?action=delete&confirm=true&id={$action->page}",
+				__('Edit')      => "{$action->base}{$action->page}?action=edit&id={$action->page}",
+				__('Changelog') => "{$action->base}{$action->page}?action=changelog&id={$action->page}",
+				__('Delete')    => "{$action->base}{$action->page}?action=delete&confirm=true&id={$action->page}",
 			),
 			'related'  => ''
 		);
@@ -128,11 +135,11 @@ class WikiController {
 
 	protected function doEdit($action) {
 		$response = array(
-			'title'    => "Редактиране: " . $this->pageName($action->page),
+			'title'    => __('edit: ') . $this->pageName($action->page),
 			'content'  => '',
 			'editForm' => $this->renderEditForm($action),
 			'options'  => array(
-				'Отказ' => "{$action->base}{$action->page}"
+				__('Cancel') => "{$action->base}{$action->page}"
 			),
 			'related'  => ''
 		);
@@ -191,11 +198,11 @@ class WikiController {
 				$from_info = $this->git("log -1 $escaped_from");
 				$to_info   = $this->git("log -1 $escaped_to");
 
-				$content .= '<h3>Показване на разликите между версия <strong>' . $from . '</strong> и <strong>' . $to . '</strong></h3>';
-				$content .= '<pre>Версия <strong>' . $from . '</strong>:<br />' . htmlspecialchars($from_info) . '</pre>';
-				$content .= '<pre>Версия <strong>' . $to . '</strong>:<br />' . htmlspecialchars($to_info) . '</pre>';
+				$content .= '<h3>' . sprintf(__('Changes between <strong>%s</strong> and <strong> %s</strong>'), $from, $to) . '</h3>';
+				$content .= '<pre>' . sprintf(__('Version <strong>%s</strong>:<br />%s'), $from, htmlspecialchars($from_info)) . '</pre>';
+				$content .= '<pre>' . sprintf(__('Version <strong>%s</strong>:<br />%s'), $to, htmlspecialchars($to_info)) . '</pre>';
 
-				$content .= '<p>Разлики:</p>';
+				$content .= '<p>' . __('Changes:') . '</p>';
 				// get diff
 				$diff_lines = explode("\n", trim($this->git("diff $escaped_from $escaped_to $path")));
 				// strip diff header
@@ -223,7 +230,7 @@ class WikiController {
 			// render a simple changelog for this page
 			$history  = $this->git("log --pretty=oneline --abbrev-commit -- $path");
 
-			$content .= '<h3>Версии на страница ' . htmlspecialchars($this->pageName($action->page)) . '</h3>';
+			$content .= '<h3>' . sprintf(__('Versions of the page %s'), htmlspecialchars($this->pageName($action->page))) . '</h3>';
 			$content .= '<form action="' . htmlspecialchars($base_url) . '" method="get" />';
 			$content .= '<input type="hidden" name="action" value="changelog" />';
 			$content .= '<input type="hidden" name="id" value="' . htmlspecialchars($action->page) . '" />';
@@ -247,19 +254,19 @@ class WikiController {
 				$content .= htmlspecialchars($line) . '<br />';
 			}
 			$content .= '</pre>';
-			$content .= '<p><input type="submit" value="Сравнете версиите" /></p>';
+			$content .= '<p><input type="submit" value="' . __('Compare versions') . '" /></p>';
 			$content .= '</form>';
 		} else {
-			$content .= 'За съжаление функцията "история на промените" не е достъпна за вашата инсталация';
+			$content .= __('Sorry, but the change history isn\'t available for your instalation.');
 		}
 
 		$response = array(
-			'title'    => "История на промените за: " . $this->pageName($action->page),
+			'title'    => _('History for: ') . $this->pageName($action->page),
 			'content'  => $content,
 			'editForm' => '',
 			'options'  => array(
-				'Редакция' => "{$action->base}{$action->page}?action=edit&id={$action->page}",
-				'Обратно' => "{$action->base}{$action->page}"
+				__('Edit') => "{$action->base}{$action->page}?action=edit&id={$action->page}",
+				__('Back') => "{$action->base}{$action->page}"
 			),
 			'related'  => ''
 		);
@@ -269,11 +276,11 @@ class WikiController {
 
 	protected function doPreview($action) {
 		$response = array(
-			'title'    => "Преглед: " . $this->pageName($action->page),
+			'title'    => __('Preview: ') . $this->pageName($action->page),
 			'content'  => '<div class="preview">' . $this->renderPreviewDocument($action) . '</div>',
 			'editForm' => $this->renderEditForm($action),
 			'options'  => array(
-				'Отказ' => "{$action->base}{$action->page}"
+				__('Cancel') => "{$action->base}{$action->page}"
 			),
 			'related'  => ''
 		);
@@ -285,15 +292,15 @@ class WikiController {
 		// TODO: Implement some sort of versioning
 		if (empty($action->model)) {
 			// This is a new file
-			$this->addMessage('notice', 'Създаване на нова страница...');
+			$this->addMessage('notice', __('Creating a new page'));
 		} elseif ($action->model->updated == $action->post->updated) {
 			// Check there isn't an editing conflict
 			$action->model->content = $action->post->text;
 			$this->setModelData($action->model);
 
-			$this->redirectTo("{$action->base}{$action->page}", array('success' => 'Страницата е обновена успешно.'));
+			$this->redirectTo("{$action->base}{$action->page}", array('success' => __('The update was successfull.')));
 		} else {
-			$this->addMessage('error', 'Внимание: Възникнал е конфликт при опита за редакция на страницата.');
+			$this->addMessage('error', __('Warning: there was a conflict when trying to edit the page.'));
 		}
 
 		return $this->doDisplay($action);
@@ -318,7 +325,7 @@ class WikiController {
 		if (!file_exists($directory)) {
 			mkdir($directory, 0777, true);
 		} elseif (!is_dir($directory)) {
-			$this->addMessage('error', "Грешка: неуспешен опит за създаване на {$model->file}");
+			$this->addMessage('error', sprintf(__('Error: failed to create %s'), $model->file));
 			return;
 		}
 
@@ -375,7 +382,7 @@ class WikiController {
 		if (file_exists($filename)) {
 			return file_get_contents($filename);
 		}
-		$this->addMessage('info', $this->config['newPageText']);
+		$this->addMessage('info', __('This page doesn\'t exist yet. <br> Click "Edit" to create it.'));
 	}
 
 	protected function getLastUpdated($filename) {
@@ -531,7 +538,7 @@ class WikiController {
 				foreach ($params as $key => $value) {
 					$classes .= " $key-$value";
 					if ($key == 'confirm' && !empty($value)) {
-						$confirmation = 'onclick="return confirm(\'Сигурни ли сте?\');"';
+						$confirmation = 'onclick="return confirm(\'' . __('Are you sure?') . '\');"';  //Not sure if "Сигурни ли сте?" means 'Are you sure?'
 					}
 				}
 				$classes = trim($classes);
@@ -617,20 +624,19 @@ PAGE;
 			);
 		}
 
-		return <<<HTML
+		return '
 <form action="{$action->base}{$action->page}" method="post" id="edit-page-form">
 	<fieldset>
-		<legend>Редакция на страница</legend>
-		<label for="text">Съдържание:</label><br>
-		<textarea cols="80" rows="80" name="text" id="text">{$form['raw']}</textarea>
+		<legend>' . __('Editing page') . '</legend>
+		<label for="text">' . __('Contents: ') . '</label><br>
+		<textarea cols="80" rows="80" name="text" id="text">' . $form['raw'] . '</textarea>
 		<br>
 
-		<input type="submit" name="preview" value="Преглед">
-		<input type="submit" name="save" value="Запази">
-		<input type="hidden" name="updated" value="{$form['updated']}">
+		<input type="submit" name="preview" value="' . __('Preview') . '">
+		<input type="submit" name="save" value="' . __('Save') . '">
+		<input type="hidden" name="updated" value="' . $form['updated'] . '">
 	</fieldset>
-</form>
-HTML;
+</form>'; //Not sure if 'Редакция на страница' is 'Editing page'
 
 	}
 
