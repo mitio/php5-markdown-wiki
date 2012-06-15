@@ -7,6 +7,7 @@ $libDir  = $appRoot . 'lib/';
 $config = array(
 	'docDir'      => $appRoot . 'pages/',
 	'defaultPage' => 'index',
+        'language'    => 'bg_BG',
 );
 
 # And off we go...
