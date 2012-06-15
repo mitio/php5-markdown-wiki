@@ -13,6 +13,13 @@ Currently available translations:
 - English (@seth--)
 - Bulgarian (@mitio)
 
+Requirements:
+
+- A PHP-enabled *NIX webserver (Windows is not currently supported).
+- A filesystem to store pages on (not suitable for cloud-based platforms with ephemeral filesystems).
+- Optional: Git, to support page history and versions comparison.
+- No database backend required.
+
 Installation
 ------------
 
